@@ -5,56 +5,45 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import space.beka.mvvmpattern.databinding.NoteItemBinding
 
 class NoteAdapter(
-    val context: Context,
-    val noteClickDeleteInterface: NoteClickDeleteInterface,
+    context: Context, val noteClickDeleteInterface: NoteClickDeleteInterface,
     val noteClickInterface: NoteClickInterface
-) :
-    RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
-
-    private val allNotes = ArrayList<Note>()
-
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        val noteTV = itemView.findViewById<TextView>(R.id.idTVNote)
-        val dateTV = itemView.findViewById<TextView>(R.id.idTVDate)
-        val deleteIV = itemView.findViewById<ImageView>(R.id.idIVDelete)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(
-            R.layout.note_item,
-            parent, false
-        )
-        return ViewHolder(itemView)
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.noteTV.setText(allNotes.get(position).noteTitle)
-        holder.dateTV.setText("Last Updated : " + allNotes.get(position).timeStamp)
-        holder.deleteIV.setOnClickListener {
-            noteClickDeleteInterface.onDeleteIconClick(allNotes.get(position))
+) : RecyclerView.Adapter<NoteAdapter.Vh>() {
+    private val list = ArrayList<Note>()
+    inner class Vh(var itemRvBinding: NoteItemBinding) :
+        RecyclerView.ViewHolder(itemRvBinding.root) {
+        @SuppressLint("SetTextI18n")
+        fun onBind(note: Note, position: Int) {
+            itemRvBinding.idTVNote.text = note.noteTitle
+            itemRvBinding.idTVDate.setText("Last Updated : " + list.get(position).timeStamp)
+            itemRvBinding.idIVDelete.setOnClickListener {
+            noteClickDeleteInterface.onDeleteIconClick(list.get(position))
         }
-
-        holder.itemView.setOnClickListener {
-            noteClickInterface.onNoteClick(allNotes.get(position))
+            itemRvBinding.root.setOnClickListener {
+            noteClickInterface.onNoteClick( itemRvBinding.root ,list.get(position))
+        }
         }
     }
 
-    override fun getItemCount(): Int {
-        return allNotes.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Vh {
+        return Vh(NoteItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
-    fun updateList(newList: List<Note>) {
-        allNotes.clear()
-        allNotes.addAll(newList)
+    override fun onBindViewHolder(holder: Vh, position: Int) {
+        holder.onBind(list[position], position)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(newList: ArrayList<Note>) {
+        list.clear()
+        list.addAll(newList)
         notifyDataSetChanged()
     }
+
+    override fun getItemCount(): Int = list.size
 }
 
 interface NoteClickDeleteInterface {
@@ -62,5 +51,5 @@ interface NoteClickDeleteInterface {
 }
 
 interface NoteClickInterface {
-    fun onNoteClick(note: Note)
+    fun onNoteClick(view: View,note: Note)
 }

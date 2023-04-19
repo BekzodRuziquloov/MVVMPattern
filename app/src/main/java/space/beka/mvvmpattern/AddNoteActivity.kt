@@ -9,20 +9,20 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import space.beka.mvvmpattern.databinding.ActivityAddNoteBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AddNoteActivity : AppCompatActivity() {
-    lateinit var noteTitleEdt: EditText
-    lateinit var noteEdt: EditText
-    lateinit var saveBtn: Button
+    private lateinit var binding: ActivityAddNoteBinding
     lateinit var viewModal: NoteViewModel
     var noteID = -1;
 
     @SuppressLint("SimpleDateFormat")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_note)
+        binding = ActivityAddNoteBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         viewModal = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
@@ -33,16 +33,16 @@ class AddNoteActivity : AppCompatActivity() {
             val noteTitle = intent.getStringExtra("noteTitle")
             val noteDescription = intent.getStringExtra("noteDescription")
             noteID = intent.getIntExtra("noteId", -1)
-            saveBtn.setText("Update Note")
-            noteTitleEdt.setText(noteTitle)
-            noteEdt.setText(noteDescription)
+            binding.btnSave.setText("Update Note")
+            binding.edtname.setText(noteTitle)
+            binding.edtDesctiption.setText(noteDescription)
         } else {
-            saveBtn.setText("Save Note")
+           binding.btnSave.setText("Save Note")
         }
 
-        saveBtn.setOnClickListener {
-            val noteTitle = noteTitleEdt.text.toString()
-            val noteDescription = noteEdt.text.toString()
+        binding.btnSave.setOnClickListener {
+            val noteTitle = binding.edtname.text.toString()
+            val noteDescription = binding.edtDesctiption.text.toString()
             if (noteType.equals("Edit")) {
                 if (noteTitle.isNotEmpty() && noteDescription.isNotEmpty()) {
                     val sdf = SimpleDateFormat("dd MMM, yyyy - HH:mm")
